@@ -36,6 +36,12 @@ class Connection(object):
         self.secret = secret
         (major, minor, micro, releaselevel, serial) = sys.version_info
         self.user_agent = "Python/%d.%d.%d bitly_api/%s" % (major, minor, micro, '?')
+
+    def history(self):
+        """ get link history for an account """
+        history_url = 'bit.ly/u/' + self.login + '.json'
+        data = self._make_request(history_url)
+        return data['data']
     
     def keyword(self, hash, keyword):
         """ assign a keyword to a hash """
@@ -147,6 +153,9 @@ class Connection(object):
             'method':method,
             'params':urllib.urlencode(params, doseq=1)
             }
+        return self._make_request(request, timeout)
+
+    def _make_request(self, request, timeout=2500):
         try:
             http_response = bitly_http.get(request, timeout, user_agent = self.user_agent)
             if http_response['http_status_code'] != 200:
